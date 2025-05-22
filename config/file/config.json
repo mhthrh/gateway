@@ -1,0 +1,35 @@
+{
+  "appName": "gateway",
+  "isTest": true,
+  "version": "1.0.0",
+  "expireDate": "2026-01-01",
+  "secrets": [
+    {
+      "name": "login_secret",
+      "secretKey": "~~$eCret^&*KEY~~"
+    },
+    {
+      "name": "app_secret",
+      "secretKey": "~~KoLoFt^&*KEY~~"
+    }
+  ],
+  "server": {
+    "host": "0.0.0.0",
+    "port": 8569,
+    "readTimeOut": 60,
+    "writeTimeOut": 60,
+    "idleTimeOut": 180
+  },
+  "grpc": [
+    {
+      "srv": "user",
+      "host": "localhost",
+      "port": 8585
+    },
+    {
+      "srv": "notification",
+      "host": "localhost",
+      "port": 8586
+    }
+  ]
+}
