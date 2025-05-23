@@ -3,12 +3,20 @@ package api
 import (
 	"gateway/pkg/api/user"
 	"github.com/gin-gonic/gin"
+	"github.com/mhthrh/common_pkg/pkg/logger"
 	"github.com/mhthrh/common_pkg/pkg/xErrors"
 	"net/http"
 )
 
-func Run() http.Handler {
+func Run(IsProduction bool, l logger.ILogger, address string, count int) http.Handler {
 	g := gin.Default()
+	err := user.New(l, address, count)
+	if err != nil {
+
+	}
+	if IsProduction {
+		gin.SetMode(gin.ReleaseMode)
+	}
 	g.Use(checkToken())
 
 	userGroup := g.Group("/user")

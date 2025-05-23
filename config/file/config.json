@@ -13,23 +13,42 @@
       "secretKey": "~~KoLoFt^&*KEY~~"
     }
   ],
+  "postgresql": {
+    "host": "localhost",
+    "port": 5432,
+    "user": "admin_role",
+    "password": "S3ring@123",
+    "database": "my_app_db",
+    "schema": "schema1",
+    "sslEnabled": false
+  },
+  "mongo": {
+    "host": "localhost",
+    "port": 27017
+  },
+  "admin": {
+    "user": "admin",
+    "pass": "S3ring@123"
+  },
   "server": {
     "host": "0.0.0.0",
-    "port": 8569,
-    "readTimeOut": 60,
-    "writeTimeOut": 60,
-    "idleTimeOut": 180
+    "port": 6985,
+    "readTimeOut": 2000,
+    "writeTimeOut": 2000,
+    "idleTimeOut": 180000
   },
   "grpc": [
     {
       "srv": "user",
       "host": "localhost",
-      "port": 8585
+      "port": 8585,
+      "poolSize": 10
     },
     {
       "srv": "notification",
       "host": "localhost",
-      "port": 8586
+      "port": 8586,
+      "poolSize": 10
     }
   ]
 }

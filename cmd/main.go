@@ -5,6 +5,8 @@ import (
 	"gateway/pkg/api"
 	xloader "github.com/mhthrh/common_pkg/pkg/loader"
 	l "github.com/mhthrh/common_pkg/pkg/logger"
+	cnfg "github.com/mhthrh/common_pkg/pkg/model/config"
+	"github.com/mhthrh/common_pkg/util/generic"
 	"go.uber.org/zap"
 	"golang.org/x/net/context"
 
@@ -16,11 +18,12 @@ import (
 )
 
 const (
-	configPath = "src/gateway/config/file"
-	appName    = "gateway"
-	url        = "https://vault.mhthrh.co.ca"
-	secret     = "AnKoloft@~delNazok!12345"
-	logName    = "x-app.gateway.service"
+	configPath   = "src/gateway/config/file"
+	appName      = "gateway"
+	grpcPoolName = "user"
+	url          = "https://vault.mhthrh.co.ca"
+	secret       = "AnKoloft@~delNazok!12345"
+	logName      = "x-app.gateway.service"
 )
 
 var (
@@ -56,9 +59,21 @@ func main() {
 		logger.Fatal(ctx, "config loader error", zap.Any("config loader failed", err))
 	}
 	logger.Info(ctx, "create gateway server")
+
+	grpcs, err := config.GetGrpcs()
+	if err != nil {
+		logger.Fatal(ctx, "config loader error", zap.Any("config loader failed", err))
+	}
+
+	g := generic.Filter(grpcs, grpcPoolName, func(t cnfg.Grpc, s string) bool {
+		if t.Srv == grpcPoolName {
+			return true
+		}
+		return false
+	})
 	srv := http.Server{
 		Addr:         fmt.Sprintf("%s:%d", srvConfig.Host, srvConfig.Port),
-		Handler:      api.Run(),
+		Handler:      api.Run(false, logger, fmt.Sprintf("%s:%d", g.Host, g.Port), g.Count),
 		ReadTimeout:  srvConfig.ReadTimeOut,
 		WriteTimeout: srvConfig.WriteTimeOut,
 		IdleTimeout:  srvConfig.IdleTimeOut,
@@ -72,6 +87,7 @@ func main() {
 		if err := srv.ListenAndServe(); err != nil {
 			internalInterrupt <- err
 		}
+		fmt.Println("kir")
 	}()
 
 	select {
@@ -82,5 +98,4 @@ func main() {
 		log.Printf("Server listener encountered an error:%v shutting down....", err)
 	}
 	cancel()
-
 }
