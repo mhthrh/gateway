@@ -4,13 +4,14 @@ import (
 	"gateway/pkg/api/user"
 	"github.com/gin-gonic/gin"
 	"github.com/mhthrh/common_pkg/pkg/logger"
+	"github.com/mhthrh/common_pkg/pkg/pool/grpcPool"
 	"github.com/mhthrh/common_pkg/pkg/xErrors"
 	"net/http"
 )
 
-func Run(IsProduction bool, l logger.ILogger, address string, count int) http.Handler {
+func Run(IsProduction bool, l logger.ILogger, pool *grpcPool.GrpcPool) http.Handler {
 	g := gin.Default()
-	err := user.New(l, address, count)
+	err := user.New(l, pool)
 	if err != nil {
 
 	}

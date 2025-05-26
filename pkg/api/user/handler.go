@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/mhthrh/common_pkg/pkg/logger"
 	"github.com/mhthrh/common_pkg/pkg/model/user"
+	"github.com/mhthrh/common_pkg/pkg/pool/grpcPool"
 	"github.com/mhthrh/common_pkg/pkg/xErrors"
 )
 
@@ -13,8 +14,8 @@ var (
 	p *proxy.Proxy
 )
 
-func New(l logger.ILogger, address string, count int) (err error) {
-	p, err = proxy.New(l, address, count)
+func New(l logger.ILogger, pool *grpcPool.GrpcPool) (err error) {
+	p, err = proxy.New(l, pool)
 	return
 }
 func Create(c *gin.Context) {
@@ -23,10 +24,6 @@ func Create(c *gin.Context) {
 		u user.User
 	)
 	defer func() {
-		if e.Code == xErrors.SuccessCode {
-			c.JSON(xErrors.GetHttpStatus(e, c.Request.Method), u)
-			return
-		}
 		c.JSON(xErrors.GetHttpStatus(e, c.Request.Method), e)
 	}()
 	if err := c.ShouldBindJSON(&u); err != nil {

@@ -7,6 +7,7 @@ import (
 	usr "github.com/mhthrh/common_pkg/pkg/model/user"
 	userGrpc "github.com/mhthrh/common_pkg/pkg/model/user/grpc/v1"
 	"github.com/mhthrh/common_pkg/pkg/xErrors"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/status"
 )
@@ -21,7 +22,14 @@ func New(log logger.ILogger) *Service {
 	}
 }
 func (s *Service) Create(ctx context.Context, u *usr.User, c *grpc.ClientConn) *xErrors.Error {
+	s.l.Info(ctx, "start user.creat ", zap.Any("input", u))
+
+	s.l.Info(ctx, "make a connection to grpc server")
 	cnn := userGrpc.NewUserServiceClient(c)
+	s.l.Info(ctx, "server connect")
+
+	s.l.Info(ctx, "grpc calling,Create ")
+
 	e, stat := cnn.Create(context.Background(), &userGrpc.UserRequest{
 		FirstName:   u.FirstName,
 		LastName:    u.LastName,
@@ -31,8 +39,9 @@ func (s *Service) Create(ctx context.Context, u *usr.User, c *grpc.ClientConn) *
 		Password:    u.Password,
 	})
 	st, ok := status.FromError(stat)
-	fmt.Println(e, st, ok)
-	return nil
+	s.l.Info(ctx, "grpc result", zap.Any("stat", stat), zap.Any("err", e), zap.Any("st", st), zap.Any("ok", ok))
+
+	return xErrors.Success()
 }
 
 func (s *Service) GetByUserName(ctx context.Context, userName string, c *grpc.ClientConn) (usr.User, *xErrors.Error) {

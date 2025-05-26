@@ -21,9 +21,8 @@ type Proxy struct {
 	srv user.Service
 }
 
-func New(logger logger.ILogger, address string, count int) (*Proxy, error) {
-	pool, _ = grpcPool.NewPool(address, count)
-
+func New(logger logger.ILogger, p *grpcPool.GrpcPool) (*Proxy, error) {
+	pool = p
 	return &Proxy{L: logger, srv: *user.New(logger)}, nil
 }
 func (p *Proxy) Create(ctx context.Context, request uu.User) *xErrors.Error {
