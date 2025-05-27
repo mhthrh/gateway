@@ -71,19 +71,19 @@ func main() {
 		}
 		return false
 	})
-	p11, err1 := grpcPool.NewPool(fmt.Sprintf("%s:%d", g.Host, g.Port), g.Count)
-	if err1 != nil {
+	p, e := grpcPool.NewPool(fmt.Sprintf("%s:%d", g.Host, g.Port), g.Count)
+	if e != nil {
 		logger.Error(ctx, "failed to create gateway grpc pool connection")
 	}
 	logger.Info(ctx, "successfully created gRPC connection pool")
 
 	logger.Info(ctx, "create gateway server")
 	srv := http.Server{
-		Addr:         fmt.Sprintf("%s:%d", srvConfig.Host, srvConfig.Port),
-		Handler:      api.Run(false, logger, p11),
-		ReadTimeout:  srvConfig.ReadTimeOut,
-		WriteTimeout: srvConfig.WriteTimeOut,
-		IdleTimeout:  srvConfig.IdleTimeOut,
+		Addr:    fmt.Sprintf("%s:%d", srvConfig.Host, srvConfig.Port),
+		Handler: api.Run(false, logger, p),
+		//ReadTimeout:  srvConfig.ReadTimeOut,
+		//WriteTimeout: srvConfig.WriteTimeOut,
+		//IdleTimeout:  srvConfig.IdleTimeOut,
 	}
 	logger.Info(ctx, "gateway server init successfully")
 
@@ -103,6 +103,6 @@ func main() {
 	case err := <-internalInterrupt:
 		log.Printf("Server listener encountered an error:%v shutting down....", err)
 	}
-	_ = p11.Release()
+	_ = p.Release()
 	cancel()
 }

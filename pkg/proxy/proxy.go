@@ -34,7 +34,8 @@ func (p *Proxy) Create(ctx context.Context, request uu.User) *xErrors.Error {
 	p.L.Info(ctx, "start CreateUser ", zap.Any("inp", request))
 	c, err := pool.Get()
 	if err != nil {
-
+		p.L.Error(ctx, "failed getting connection")
+		return xErrors.NewErrConnectionFailed(nil, nil)
 	}
 
 	return p.srv.Create(ctx, &request, c)
@@ -49,7 +50,8 @@ func (p *Proxy) Get(ctx context.Context, userName string) (uu.User, *xErrors.Err
 
 	c, err := pool.Get()
 	if err != nil {
-
+		p.L.Error(ctx, "failed getting connection")
+		return uu.User{}, xErrors.NewErrConnectionFailed(nil, nil)
 	}
 	return p.srv.GetByUserName(ctx, userName, c)
 }
@@ -62,7 +64,8 @@ func (p *Proxy) Update(ctx context.Context, request uu.User) *xErrors.Error {
 	p.L.Info(ctx, "start Update ", zap.Any("user name", request))
 	c, err := pool.Get()
 	if err != nil {
-
+		p.L.Error(ctx, "failed getting connection")
+		return xErrors.NewErrConnectionFailed(nil, nil)
 	}
 	return p.srv.Update(ctx, &request, c)
 }
@@ -75,7 +78,8 @@ func (p *Proxy) Remove(ctx context.Context, userName string) *xErrors.Error {
 	p.L.Info(ctx, "start Remove ", zap.String("user name", userName))
 	c, err := pool.Get()
 	if err != nil {
-
+		p.L.Error(ctx, "failed getting connection")
+		return xErrors.NewErrConnectionFailed(nil, nil)
 	}
 	return p.srv.Remove(ctx, userName, c)
 }

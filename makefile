@@ -14,9 +14,15 @@ buildBinary:
     		sudo chmod +x $(Build_File) ;\
     	fi
 	./script/build.sh cmd/main.go $(IMAGE_NAME)
+
 build: buildBinary
 	docker build --progress=plain -t $(IMAGE_NAME) .
 run: build
 	docker run --rm -p 8585:8585 $(IMAGE_NAME)
 
+go-run:
+	go run cmd/main.go
+api_test: go-run
+	#sudo chmod +x ./script/cURL-test.sh
+	./script/cURL-test.sh
 .PHONY: update_lib,build,run,buildBinary

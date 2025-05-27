@@ -40,8 +40,10 @@ func (s *Service) Create(ctx context.Context, u *usr.User, c *grpc.ClientConn) *
 	})
 	st, ok := status.FromError(stat)
 	s.l.Info(ctx, "grpc result", zap.Any("stat", stat), zap.Any("err", e), zap.Any("st", st), zap.Any("ok", ok))
-
-	return xErrors.Success()
+	if e.Error == nil {
+		return xErrors.Success()
+	}
+	return xErrors.Grpc2Err(e.Error)
 }
 
 func (s *Service) GetByUserName(ctx context.Context, userName string, c *grpc.ClientConn) (usr.User, *xErrors.Error) {
