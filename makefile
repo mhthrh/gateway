@@ -18,7 +18,7 @@ buildBinary:
 build: buildBinary
 	docker build --progress=plain -t $(IMAGE_NAME) .
 run: build
-	docker run --rm -p 8585:8585 $(IMAGE_NAME)
+	docker run --rm -p 6985:6985 $(IMAGE_NAME)
 
 go-run:
 	go run cmd/main.go

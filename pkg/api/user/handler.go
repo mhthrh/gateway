@@ -41,8 +41,8 @@ func GetUser(c *gin.Context) {
 		u   user.User
 	)
 	defer func() {
-		if e.Code == xErrors.SuccessCode {
-			c.JSON(xErrors.GetHttpStatus(e, c.Request.Method), u)
+		if e == nil {
+			c.JSON(xErrors.GetHttpStatus(xErrors.Success(), c.Request.Method), u)
 			return
 		}
 		c.JSON(xErrors.GetHttpStatus(e, c.Request.Method), e)
@@ -54,7 +54,7 @@ func GetUser(c *gin.Context) {
 		return
 	}
 	ctx := context.Background()
-	u, e = p.Get(ctx, "")
+	u, e = p.Get(ctx, userName)
 }
 func UpdateUser(c *gin.Context) {
 	var (
@@ -63,8 +63,8 @@ func UpdateUser(c *gin.Context) {
 	)
 
 	defer func() {
-		if e.Code == xErrors.SuccessCode {
-			c.JSON(xErrors.GetHttpStatus(e, c.Request.Method), u)
+		if e == nil {
+			c.JSON(xErrors.GetHttpStatus(xErrors.Success(), c.Request.Method), u)
 			return
 		}
 		c.JSON(xErrors.GetHttpStatus(e, c.Request.Method), e)
@@ -81,12 +81,11 @@ func DeleteUser(c *gin.Context) {
 	var (
 		e   *xErrors.Error
 		key = "username"
-		u   user.User
 	)
 
 	defer func() {
-		if e.Code == xErrors.SuccessCode {
-			c.JSON(xErrors.GetHttpStatus(e, c.Request.Method), u)
+		if e == nil {
+			c.JSON(xErrors.GetHttpStatus(xErrors.Success(), c.Request.Method), "")
 			return
 		}
 		c.JSON(xErrors.GetHttpStatus(e, c.Request.Method), e)

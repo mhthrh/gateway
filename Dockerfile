@@ -6,7 +6,7 @@ LABEL Email="m.rozbehano@outlook.com"
 RUN apt update && apt install vim -y
 
 ENV APP_ENV=test
-ENV PORT=8585
+ENV PORT=6985
 ENV IP="0.0.0.0"
 
 ENV GOPATH=/go
