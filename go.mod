@@ -4,10 +4,10 @@ go 1.24.2
 
 require (
 	github.com/gin-gonic/gin v1.10.0
-	github.com/mhthrh/common_pkg v0.0.0-20250523222801-6d0a907ccde4
+	github.com/mhthrh/common_pkg v0.0.0-20250527211746-195945d693e7
 	go.uber.org/zap v1.27.0
 	golang.org/x/net v0.35.0
-	google.golang.org/grpc v1.72.1
+	google.golang.org/grpc v1.72.2
 )
 
 require (

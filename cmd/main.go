@@ -6,6 +6,7 @@ import (
 	xloader "github.com/mhthrh/common_pkg/pkg/loader"
 	l "github.com/mhthrh/common_pkg/pkg/logger"
 	cnfg "github.com/mhthrh/common_pkg/pkg/model/config"
+	"github.com/mhthrh/common_pkg/pkg/pool/grpcPool"
 	"github.com/mhthrh/common_pkg/util/generic"
 	"go.uber.org/zap"
 	"golang.org/x/net/context"
@@ -20,7 +21,7 @@ import (
 const (
 	configPath   = "src/gateway/config/file"
 	appName      = "gateway"
-	grpcPoolName = "user"
+	userGrpcPool = "user"
 	url          = "https://vault.mhthrh.co.ca"
 	secret       = "AnKoloft@~delNazok!12345"
 	logName      = "x-app.gateway.service"
@@ -58,25 +59,31 @@ func main() {
 	if err != nil {
 		logger.Fatal(ctx, "config loader error", zap.Any("config loader failed", err))
 	}
-	logger.Info(ctx, "create gateway server")
 
 	grpcs, err := config.GetGrpcs()
 	if err != nil {
 		logger.Fatal(ctx, "config loader error", zap.Any("config loader failed", err))
 	}
-
-	g := generic.Filter(grpcs, grpcPoolName, func(t cnfg.Grpc, s string) bool {
-		if t.Srv == grpcPoolName {
+	logger.Info(ctx, "create gateway grpc pool connection")
+	g := generic.Filter(grpcs, userGrpcPool, func(t cnfg.Grpc, s string) bool {
+		if t.Srv == userGrpcPool {
 			return true
 		}
 		return false
 	})
+	p, e := grpcPool.NewPool(fmt.Sprintf("%s:%d", g.Host, g.Port), g.Count)
+	if e != nil {
+		logger.Error(ctx, "failed to create gateway grpc pool connection")
+	}
+	logger.Info(ctx, "successfully created gRPC connection pool")
+
+	logger.Info(ctx, "create gateway server")
 	srv := http.Server{
-		Addr:         fmt.Sprintf("%s:%d", srvConfig.Host, srvConfig.Port),
-		Handler:      api.Run(false, logger, fmt.Sprintf("%s:%d", g.Host, g.Port), g.Count),
-		ReadTimeout:  srvConfig.ReadTimeOut,
-		WriteTimeout: srvConfig.WriteTimeOut,
-		IdleTimeout:  srvConfig.IdleTimeOut,
+		Addr:    fmt.Sprintf("%s:%d", srvConfig.Host, srvConfig.Port),
+		Handler: api.Run(false, logger, p),
+		//ReadTimeout:  srvConfig.ReadTimeOut,
+		//WriteTimeout: srvConfig.WriteTimeOut,
+		//IdleTimeout:  srvConfig.IdleTimeOut,
 	}
 	logger.Info(ctx, "gateway server init successfully")
 
@@ -87,7 +94,6 @@ func main() {
 		if err := srv.ListenAndServe(); err != nil {
 			internalInterrupt <- err
 		}
-		fmt.Println("kir")
 	}()
 
 	select {
@@ -97,5 +103,6 @@ func main() {
 	case err := <-internalInterrupt:
 		log.Printf("Server listener encountered an error:%v shutting down....", err)
 	}
+	_ = p.Release()
 	cancel()
 }
